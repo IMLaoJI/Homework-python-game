@@ -211,8 +211,7 @@ class GridCrafterView(tk.Frame):
         super().__init__(master)
 
         # Task 2.2 Crafting: Create widgets here
-        widget = master
-        master = view_widget = ItemGridView(self, input_size)
+        view_widget = ItemGridView(self, input_size)
         view_widget.pack()
 
     def render(self, key_stack_pairs, selected):

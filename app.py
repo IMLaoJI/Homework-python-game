@@ -520,8 +520,7 @@ class Ninedraft:
     def _trigger_crafting(self, craft_type):
         print(f"Crafting with {craft_type}")
         crafter = GridCrafter(CRAFTING_RECIPES_2x2)
-        # app = CraftingWindow(self._master, 'CraftingWindow', self._hot_bar, self._inventory, crafter)
-        app = CraftingWindow(self._master, 'CraftingWindow', self._hot_bar, self._inventory, crafter)
+        craft_window = CraftingWindow(self._master, 'CraftingWindow', self._hot_bar, self._inventory, crafter)
 
     def run_effect(self, effect):
         if len(effect) == 2:
