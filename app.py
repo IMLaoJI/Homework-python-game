@@ -103,26 +103,88 @@ def create_item(*item_id):
             return BlockItem(item_type)
 
         # Task 1.4 Basic Items: Create wood & stone here
-        else:
+        elif item_type == "wood" or item_type == "stone":
             return BlockItem(item_type)
+
+        elif item_type == "apple":
+            return FoodItem(item_type, 2)
 
     raise KeyError(f"No item defined for {item_id}")
 
 
+class FoodItem(Item):
+
+    def __init__(self, item_id: str, strength: float):
+        super(FoodItem, self).__init__(item_id)
+        self._strength = strength
+
+    def get_strength(self):
+        return self._strength
+
+    def can_attack(self) -> bool:
+        return False
+
+    def place(self):
+        return [('effect', ('food', self._strength))]
+
+    def get_durability(self):
+        pass
+
+    def get_max_durability(self):
+        pass
+
+    def attack(self, successful):
+        pass
+
+
+class ToolItem(Item):
+
+    def __init__(self, item_id: str, tool_type: str, durability: float):
+        super(ToolItem, self).__init__(item_id)
+        self._tool_type = tool_type
+        self._durability = durability
+
+    def get_type(self):
+        return self._tool_type
+
+    def can_attack(self) -> bool:
+        if self._durability > 0:
+            return True
+        return False
+
+    def place(self):
+        pass
+
+    def get_durability(self):
+        return self._durability
+
+    def get_max_durability(self):
+        for tool, duration in TOOL_DURABILITIES:
+            print(tool, duration)
+            if tool == self._tool_type:
+                return duration
+
+    def attack(self, successful):
+        if successful:
+            return True
+        else:
+            self._durability -= 1
+
+
 # Task 1.3: Implement StatusView class here
-class StatusView:
+class StatusView(tk.Frame):
     def __init__(self, master, player):
-        self.frame = tk.Frame(master)
-        self.frame.pack()
+        super().__init__(master)
+        self.pack()
         self.player = player
         self.health = tk.StringVar()
         self.food = tk.StringVar()
-        self.health_iamge = tk.PhotoImage(file='images/health.gif')
-        self.food_iamge = tk.PhotoImage(file='images/food.gif')
-        self.label_image1 = tk.Label(self.frame, image=self.health_iamge).pack(side=tk.LEFT)
-        self.label_text1 = tk.Label(self.frame, textvariable=self.health).pack(side=tk.LEFT)
-        self.label_image2 = tk.Label(self.frame, image=self.food_iamge).pack(side=tk.LEFT)
-        self.label_text2 = tk.Label(self.frame, textvariable=self.food).pack(side=tk.RIGHT)
+        self.health_image = tk.PhotoImage(file='images/health.gif')
+        self.food_image = tk.PhotoImage(file='images/food.gif')
+        self.label_image1 = tk.Label(self, image=self.health_image).pack(side=tk.LEFT)
+        self.label_text1 = tk.Label(self, textvariable=self.health).pack(side=tk.LEFT)
+        self.label_image2 = tk.Label(self, image=self.food_image).pack(side=tk.LEFT)
+        self.label_text2 = tk.Label(self, textvariable=self.food).pack(side=tk.RIGHT)
         self.show_status()
 
     def show_status(self):
@@ -151,6 +213,11 @@ ITEM_COLOURS = {
     'furnace': 'black',
     'cooked_apple': 'red4'
 }
+
+CRAFTING_RECIPES_2x2 = [
+    ('wood', 'wood'),
+    ('wood', 'dirt')
+]
 
 
 def load_simple_world(world):
@@ -208,7 +275,7 @@ def load_simple_world(world):
     world.add_mob(Bird("friendly_bird", (12, 12)), 400, 100)
 
 
-class MyMenu():
+class MyMenu:
 
     def __init__(self, root):
         self._root = root
@@ -259,7 +326,8 @@ class Ninedraft:
         self._hot_bar.select((0, 0))
 
         starting_hotbar = [
-            Stack(create_item("dirt"), 20)
+            Stack(create_item("dirt"), 20),
+            Stack(create_item("apple"), 4)
         ]
 
         for i, item in enumerate(starting_hotbar):
@@ -395,11 +463,6 @@ class Ninedraft:
             # Task 1.2 Mouse Controls: Remove the block from the world & get its drops
             self._world.remove_block(block)
             drops = block.get_drops(luck, was_item_suitable)
-            # print(self._hot_bar[0, 0].get_item().get_id())
-            # for i in range(0,10):
-            #     print(self._hot_bar[0,i])
-            # stack = self._hot_bar[selected]
-            # drops = stack.get_item().place()
 
             if not drops:
                 return
@@ -456,7 +519,9 @@ class Ninedraft:
 
     def _trigger_crafting(self, craft_type):
         print(f"Crafting with {craft_type}")
-        # crafter = GridCrafter(CRAFTING_RECIPES_2x2)
+        crafter = GridCrafter(CRAFTING_RECIPES_2x2)
+        # app = CraftingWindow(self._master, 'CraftingWindow', self._hot_bar, self._inventory, crafter)
+        app = CraftingWindow(self._master, 'CraftingWindow', self._hot_bar, self._inventory, crafter)
 
     def run_effect(self, effect):
         if len(effect) == 2:
@@ -480,7 +545,6 @@ class Ninedraft:
         raise KeyError(f"No effect defined for {effect}")
 
     def _right_click(self, event):
-        print("Right click")
 
         x, y = self._target_position
         target = self._world.get_thing(x, y)

@@ -211,7 +211,9 @@ class GridCrafterView(tk.Frame):
         super().__init__(master)
 
         # Task 2.2 Crafting: Create widgets here
-        # ...
+        widget = master
+        master = view_widget = ItemGridView(self, input_size)
+        view_widget.pack()
 
     def render(self, key_stack_pairs, selected):
         """Renders the stacks at appropriate cells, as determined by 'key_stack_pairs'
@@ -224,7 +226,7 @@ class GridCrafterView(tk.Frame):
         """
         # Task 2.2 Crafting: Create widgets here
         # ...
-        # print(f"{selected} is selected")
+        print(f"{selected} is selected")
         for key, stack in key_stack_pairs:
             # print(f"Redrawing {stack} at {key}")
             if key == "output":
@@ -307,7 +309,8 @@ class CraftingWindow(tk.Toplevel):
 
             view_widget.bind_for_id("<Button-1>",
                                     lambda key, e, widget_key=widget_key: self._handle_left_click(widget_key, key, e))
-            view_widget.bind_for_id("<Button-2>",
+            # change source code from <Button-2> to <Button-3>
+            view_widget.bind_for_id("<Button-3>",
                                     lambda key, e, widget_key=widget_key: self._handle_right_click(widget_key, key, e))
 
         self.redraw()
@@ -318,7 +321,8 @@ class CraftingWindow(tk.Toplevel):
 
         crafter_view.pack()
         crafter_view.bind_for_id("<Button-1>", lambda key, e: self._handle_left_click("crafter", key, e))
-        crafter_view.bind_for_id("<Button-2>", lambda key, e: self._handle_right_click("crafter", key, e))
+        # change source code from <Button-2> to <Button-3>
+        crafter_view.bind_for_id("<Button-3>", lambda key, e: self._handle_right_click("crafter", key, e))
 
     def redraw(self):
         """Redraws all widgets (i.e. crafter, inventory, & hotbar)"""
