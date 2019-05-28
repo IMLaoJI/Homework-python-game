@@ -209,10 +209,15 @@ class GridCrafterView(tk.Frame):
                     The (row, column) size of the grid crafter's input grid
         """
         super().__init__(master)
+        self.pack()
 
         # Task 2.2 Crafting: Create widgets here
-        view_widget = ItemGridView(self, input_size)
-        view_widget.pack()
+        self.view_widget_input = ItemGridView(self, input_size)
+        self.craft_label = tk.Label(self, text='=>Craft=>')
+        self.view_widget_output = ItemGridView(self, (1, 1))
+        self.view_widget_input.pack(side=tk.LEFT)
+        self.craft_label.pack(side=tk.LEFT)
+        self.view_widget_output.pack(side=tk.RIGHT)
 
     def render(self, key_stack_pairs, selected):
         """Renders the stacks at appropriate cells, as determined by 'key_stack_pairs'
@@ -224,18 +229,15 @@ class GridCrafterView(tk.Frame):
             selected (*): The key that is currently selected, or None if no key is selected
         """
         # Task 2.2 Crafting: Create widgets here
-        # ...
         print(f"{selected} is selected")
         for key, stack in key_stack_pairs:
-            # print(f"Redrawing {stack} at {key}")
+            print(f"Redrawing {stack} at {key}")
             if key == "output":
                 # Task 2.2 Crafting: Draw output cell
-                # ...
-                pass
+                self.view_widget_output.draw_cell((0, 0), stack, 'output' == selected)
             else:
                 # Task 2.2 Crafting: Draw input cells
-                # ...
-                pass
+                self.view_widget_input.draw_cell(key, stack, key == selected)
 
     def bind_for_id(self, event, callback):
         """Binds callback to tkinter mouse event
@@ -265,7 +267,8 @@ class GridCrafterView(tk.Frame):
         # simply an arbitrary key (for basic 2x2 crafting, the 5 keys are:
         #    "output", (0, 0), (0, 1), (1, 0), (1, 1)
         #
-        # ...
+        self.view_widget_input.bind(event, lambda e: callback(self.view_widget_input.xy_to_grid((e.x, e.y)), e))
+        self.view_widget_output.bind(event, lambda e: callback('output', e))
 
     # Task 2.2 Crafting: You may add additional methods here
     # ...

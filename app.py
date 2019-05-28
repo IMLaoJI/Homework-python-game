@@ -109,6 +109,12 @@ def create_item(*item_id):
         elif item_type == "apple":
             return FoodItem(item_type, 2)
 
+        elif item_type == "crafting_table":
+            return BlockItem(item_type)
+
+        elif item_type == "stick":
+            return SimpleItem(item_type)
+
     raise KeyError(f"No item defined for {item_id}")
 
 
@@ -160,7 +166,6 @@ class ToolItem(Item):
 
     def get_max_durability(self):
         for tool, duration in TOOL_DURABILITIES:
-            print(tool, duration)
             if tool == self._tool_type:
                 return duration
 
@@ -169,6 +174,23 @@ class ToolItem(Item):
             return True
         else:
             self._durability -= 1
+
+
+class CraftingTableBlock(ResourceBlock):
+    # ResourceBlock(block_id, BREAK_TABLES[block_id])
+
+    def __init__(self, block_id, break_table):
+        super(CraftingTableBlock, self).__init__(block_id, break_table)
+        self._block_id = block_id
+        self._break_table = break_table
+        print(block_id, break_table)
+
+    def get_drops(self, luck, correct_item_used):
+        if correct_item_used:
+            return [('item', ('crafting_table',))]
+
+    def use(self):
+        return 'crafting', 'crafting_table'
 
 
 # Task 1.3: Implement StatusView class here
@@ -215,9 +237,80 @@ ITEM_COLOURS = {
 }
 
 CRAFTING_RECIPES_2x2 = [
-    ('wood', 'wood'),
-    ('wood', 'dirt')
+    (
+        (
+            ('wood', 'wood'),
+            ('wood', 'wood')
+        ),
+        Stack(create_item('wood'), 10)
+    )
 ]
+
+CRAFTING_RECIPES_3x3 = {
+    (
+        (
+            (None, None, None),
+            (None, 'wood', None),
+            (None, 'wood', None)
+        ),
+        Stack(create_item('wood'), 16)
+    )
+}
+
+# CRAFTING_RECIPES_2x2 = [
+#     ...
+#     (
+#         (
+#             ('wood', 'wood'),
+#             ('wood', 'wood')
+#         ),
+#         Stack(create_item('crafting_table'), 1)
+#     ),
+#     ...
+# ]
+
+# CRAFTING_RECIPES_3x3 = {
+#     (
+#         (
+#             (None, None, None),
+#             (None, 'wood', None),
+#             (None, 'wood', None)
+#         ),
+#         Stack(create_item('stick'), 16)
+#     ),
+#     (
+#         (
+#             ('wood', 'wood', 'wood'),
+#             (None, 'stick', None),
+#             (None, 'stick', None)
+#         ),
+#         Stack(create_item('pickaxe', 'wood'), 1)
+#     ),
+#     (
+#         (
+#             ('wood', 'wood', None),
+#             ('wood', 'stick', None),
+#             (None, 'stick', None)
+#         ),
+#         Stack(create_item('axe', 'wood'), 1)
+#     ),
+#     (
+#         (
+#             (None, 'wood', None),
+#             (None, 'stick', None),
+#             (None, 'stick', None)
+#         ),
+#         Stack(create_item('shovel', 'wood'), 1)
+#     ),
+#     (
+#         (
+#             (None, 'stone', None),
+#             (None, 'stone', None),
+#             (None, 'stick', None)
+#         ),
+#         Stack(create_item('sword', 'wood'), 1)
+#     )
+# }
 
 
 def load_simple_world(world):
